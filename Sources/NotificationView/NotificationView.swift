@@ -2,20 +2,27 @@
 // https://docs.swift.org/swift-book
 
 import SwiftUI
+import Foundation
 
 /// The NotificationView used to ask for permission
 public struct NotificationView: View {
-    
-    /// The image of the notification
-    let image: Image
-    
+    func appIcon(in bundle: Bundle = .main) -> String {
+        guard let icons = bundle.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any],
+              let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+              let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+              let iconFileName = iconFiles.last else {
+            fatalError("Could not find icons in bundle")
+        }
+        
+        return iconFileName
+    }
     
     /// The primary title of the usage description
-    let primaryTitle: String
+    let title: String
     
     
     /// The secondary title of the usage description
-    let secondaryTitle: String
+    let subTitle: String
     
     
     /// The title for the button
@@ -56,14 +63,22 @@ public struct NotificationView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 20)
                                 .foregroundStyle(Color(UIColor(red: 79/256, green: 80/256, blue: 81/256, alpha: 1)))
-                                
+                            
                             HStack {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 45, height: 45)
-                                    .cornerRadius(10)
-                                    .padding(.leading, 10)
+                                if let image = UIImage(named: appIcon()) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 45, height: 45)
+                                        .cornerRadius(10)
+                                        .padding(.leading, 10)
+                                } else {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .frame(width: 45, height: 45)
+                                        .padding(.leading, 10)
+                                        .foregroundStyle(.gray)
+                                }
+                                    
                                 VStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 4)
                                         .foregroundStyle(blankColor)
@@ -90,15 +105,15 @@ public struct NotificationView: View {
                 Color(UIColor(red: 28/256, green: 28/256, blue: 30/256, alpha: 1))
                     .ignoresSafeArea()
                 VStack(spacing: 20) {
-                    Text(primaryTitle)
+                    Text(title)
                         .font(.largeTitle.bold())
                         .padding(.top, 30)
                         .multilineTextAlignment(.center)
-                    Text(secondaryTitle)
+                    Text(subTitle)
                         .font(.body)
                         .foregroundStyle(Color.secondary)
                         .multilineTextAlignment(.center)
-                        
+                    
                     
                     Spacer()
                     
@@ -123,10 +138,9 @@ public struct NotificationView: View {
         .colorScheme(.dark)
     }
     
-    public init(image: Image, primaryTitle: String, secondaryTitle: String, buttonTitle: String = "Continue", action: @escaping () async -> Void) {
-        self.image = image
-        self.primaryTitle = primaryTitle
-        self.secondaryTitle = secondaryTitle
+    public init(title: String, subTitle: String, buttonTitle: String = "Continue", action: @escaping () async -> Void) {
+        self.title = title
+        self.subTitle = subTitle
         self.action = action
         self.buttonTitle = buttonTitle
     }
@@ -167,24 +181,35 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 struct NotificationViewModifier: ViewModifier {
     @Binding var isPresented: Bool
-    var image: Image
-    var primaryTitle: String
-    var secondaryTitle: String
-    var options: UNAuthorizationOptions
+    var title: String
+    var subTitle: String
+    var notificationCenterOptions: UNAuthorizationOptions
+    
+    init(isPresented: Binding<Bool>, title: String, subTitle: String, notificationCenterOptions: UNAuthorizationOptions) {
+        self._isPresented = isPresented
+        self.title = title
+        self.subTitle = subTitle
+        self.notificationCenterOptions = notificationCenterOptions
+    }
     
     func body(content: Content) -> some View {
         content
             .fullScreenCover(isPresented: $isPresented) {
-                NotificationView(image: image, primaryTitle: primaryTitle, secondaryTitle: secondaryTitle) {
-                    let auth = try? await UNUserNotificationCenter.current().requestAuthorization(options: options)
-                    isPresented = false
+                NotificationView(title: title, subTitle: subTitle) {
+                    do {
+                        try await UNUserNotificationCenter.current().requestAuthorization(options: notificationCenterOptions)
+                        isPresented = false
+                    } catch {
+                        isPresented = false
+                    }
+                    
                 }
             }
     }
 }
 
-extension View {
-    func notificationView(isPresented: Binding<Bool>, image: Image, primaryTitle: String, secondaryTitle: String, options: UNAuthorizationOptions) -> some View {
-        modifier(NotificationViewModifier(isPresented: isPresented, image: image, primaryTitle: primaryTitle, secondaryTitle: secondaryTitle, options: options))
+public extension View {
+    func notificationView(isPresented: Binding<Bool>, title: String, subTitle: String, notificationCenterOptions: UNAuthorizationOptions) -> some View {
+        modifier(NotificationViewModifier(isPresented: isPresented, title: title, subTitle: subTitle, notificationCenterOptions: notificationCenterOptions))
     }
 }
