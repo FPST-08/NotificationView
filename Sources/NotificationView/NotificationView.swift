@@ -164,3 +164,27 @@ struct PrimaryButtonStyle: ButtonStyle {
         .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
+
+struct NotificationViewModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    var image: Image
+    var primaryTitle: String
+    var secondaryTitle: String
+    var options: UNAuthorizationOptions
+    
+    func body(content: Content) -> some View {
+        content
+            .fullScreenCover(isPresented: $isPresented) {
+                NotificationView(image: image, primaryTitle: primaryTitle, secondaryTitle: secondaryTitle) {
+                    let auth = try? await UNUserNotificationCenter.current().requestAuthorization(options: options)
+                    isPresented = false
+                }
+            }
+    }
+}
+
+extension View {
+    func notificationView(isPresented: Binding<Bool>, image: Image, primaryTitle: String, secondaryTitle: String, options: UNAuthorizationOptions) -> some View {
+        modifier(NotificationViewModifier(isPresented: isPresented, image: image, primaryTitle: primaryTitle, secondaryTitle: secondaryTitle, options: options))
+    }
+}
