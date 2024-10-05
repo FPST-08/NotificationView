@@ -1,14 +1,6 @@
 # NotificationView
 A Swift package to elegantly ask for notification permissions just like Apple's apps.
 
-## Contributors
-
-<a href="https://github.com/FPST-08/NotificationView/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=FPST-08/NotificationView" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
-
 ## Screenshots
 ![Simulator Screenshot - iPhone 16 Pro 2 - 2024-10-03 at 16 37 46-portrait](https://github.com/user-attachments/assets/475d6480-c400-48b3-83bf-2b379d36c455)
 ![Simulator Screenshot - iPhone 16 Pro 2 - 2024-10-03 at 16 37 52-portrait](https://github.com/user-attachments/assets/56fc62ca-5bde-43b6-a56e-112d9b5feb88)
@@ -57,6 +49,14 @@ struct ContentView: View {
 
 ### Navigation & UserNotifications
 NotificationView will automatically handle requesting permissions and navigation, dismissing itself when permissions are granted, not allowed, or an error occurs.
+
+## Contributors
+
+<a href="https://github.com/FPST-08/NotificationView/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FPST-08/NotificationView" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
 
 ## License
 `NotificationView` is available under the MIT license. See the LICENSE file for more info.
