@@ -1,2 +1,4 @@
 
 /.build
+.swiftpm/xcode/xcuserdata/adisara.xcuserdatad/xcschemes/xcschememanagement.plist
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata

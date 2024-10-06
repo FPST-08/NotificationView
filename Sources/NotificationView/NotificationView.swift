@@ -6,12 +6,12 @@ import Foundation
 
 /// The NotificationView used to ask for permission
 public struct NotificationView: View {
-    func appIcon(in bundle: Bundle = .main) -> String {
+    func appIcon(in bundle: Bundle = .main) -> String? {
         guard let icons = bundle.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any],
             let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
             let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
             let iconFileName = iconFiles.last else {
-            fatalError("Could not find icons in bundle")
+            return nil
         }
         
         return iconFileName
@@ -65,8 +65,8 @@ public struct NotificationView: View {
                                 .foregroundStyle(Color(UIColor(red: 79/256, green: 80/256, blue: 81/256, alpha: 1)))
                             
                             HStack {
-                                if let image = UIImage(named: appIcon()) {
-                                    Image(uiImage: image)
+                                if let image = appIcon(), let uiImage = UIImage(named: image) {
+                                    Image(uiImage: uiImage)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 45, height: 45)
