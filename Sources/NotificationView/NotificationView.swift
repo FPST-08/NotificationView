@@ -99,20 +99,26 @@ public struct NotificationView: View {
                         .padding(.top, -5)
                     }
                 }
+                .accessibilityHidden(true)
             }
             .frame(maxHeight: .infinity)
             ZStack {
                 Color(UIColor(red: 28/256, green: 28/256, blue: 30/256, alpha: 1))
                     .ignoresSafeArea()
+                    .accessibilityHidden(true)
                 VStack(spacing: 20) {
                     Text(title)
                         .font(.largeTitle.bold())
                         .padding(.top, 30)
                         .multilineTextAlignment(.center)
+                        .accessibilityLabel(title)
+                        .dynamicTypeSize(.large)
                     Text(subTitle)
                         .font(.body)
                         .foregroundStyle(Color.secondary)
                         .multilineTextAlignment(.center)
+                        .accessibilityLabel(subTitle)
+                        .dynamicTypeSize(.medium)
                     
                     
                     Spacer()
@@ -127,6 +133,7 @@ public struct NotificationView: View {
                         Text(buttonTitle)
                     }
                     .buttonStyle(PrimaryButtonStyle(loading: loading))
+                    .accessibilityLabel(buttonTitle)
                     .padding(.bottom, 56)
                     .disabled(loading)
                 }
@@ -174,8 +181,12 @@ struct PrimaryButtonStyle: ButtonStyle {
         .foregroundColor(.white)
         .background(loading ? .gray : Color(UIColor(red: 44/256, green: 44/256, blue: 46/256, alpha: 1)))
         .cornerRadius(14)
-        .opacity(loading || configuration.isPressed ? 0.5 : 1)
+        .opacity(loading || configuration.isPressed ? 0.5 : 1)
         .opacity(configuration.isPressed ? 0.5 : 1)
+        .accessibilitySortPriority(1)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(loading ? Text("Button is disabled while loading") : Text("Tap to activate"))
+        
     }
 }
 
