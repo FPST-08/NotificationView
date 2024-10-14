@@ -6,6 +6,10 @@ import Foundation
 
 /// The NotificationView used to ask for permission
 public struct NotificationView: View {
+    
+    @Environment(\.colorScheme) var colorScheme
+    
+    
     func appIcon(in bundle: Bundle = .main) -> String? {
         guard let icons = bundle.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any],
             let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
@@ -72,6 +76,7 @@ public struct NotificationView: View {
                                         .frame(width: 45, height: 45)
                                         .cornerRadius(10)
                                         .padding(.leading, 10)
+                                        .colorInvert(colorScheme == .light)
                                 } else {
                                     RoundedRectangle(cornerRadius: 10)
                                         .frame(width: 45, height: 45)
@@ -143,6 +148,7 @@ public struct NotificationView: View {
             .padding(.top, -14)
         }
         .colorScheme(.dark)
+        .colorInvert(colorScheme == .light)
     }
     
     public init(title: String, subTitle: String, buttonTitle: String = "Continue", action: @escaping () async -> Void) {
@@ -222,5 +228,28 @@ struct NotificationViewModifier: ViewModifier {
 public extension View {
     func notificationView(isPresented: Binding<Bool>, title: String, subTitle: String, notificationCenterOptions: UNAuthorizationOptions) -> some View {
         modifier(NotificationViewModifier(isPresented: isPresented, title: title, subTitle: subTitle, notificationCenterOptions: notificationCenterOptions))
+    }
+}
+
+
+extension View {
+    /// Inverts the colors of this view if boolean is true
+    /// - Parameter bool: The bool to toggle the invert
+    /// - Returns: A view that inverts its colors.
+    func colorInvert(_ bool: Bool) -> some View {
+        modifier(ColorInvertViewModifier(bool: bool))
+    }
+}
+
+/// A view modifier that inverts the colors of a view
+struct ColorInvertViewModifier: ViewModifier {
+    let bool: Bool
+    func body(content: Content) -> some View {
+        if bool {
+            content
+                .colorInvert()
+        } else {
+            content
+        }
     }
 }
